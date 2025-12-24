@@ -1,0 +1,24 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+env/
+venv/
+.venv/
+
+# Environment variables (CRITICAL)
+.env
+
+# Database
+*.db
+*.sqlite3
+data/
+
+# Docker
+.docker_ids
+
+# OS
+.DS_Store
+Thumbs.db
