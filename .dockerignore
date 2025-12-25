@@ -1,0 +1,67 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+env/
+venv/
+.venv/
+*.egg-info/
+dist/
+build/
+
+# uv
+.uv/
+# Note: uv.lock is needed for Docker builds, so we don't exclude it
+
+# Environment variables (CRITICAL - don't copy .env)
+.env
+.env.local
+.env.*.local
+
+# Database (will be mounted as volume)
+*.db
+*.sqlite3
+data/
+
+# Testing
+.pytest_cache/
+.coverage
+htmlcov/
+.tox/
+tests/
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Git
+.git/
+.gitignore
+.gitattributes
+
+# Documentation (optional - can include if needed)
+# *.md
+# docs/
+
+# Docker
+Dockerfile*
+docker-compose.yml
+.dockerignore
+
+# CI/CD
+.github/
+.gitlab-ci.yml
+
+# Logs
+*.log
+logs/
+

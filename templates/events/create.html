@@ -1,0 +1,110 @@
+{% extends "base.html" %}
+
+{% block title %}Create Event - Secret Santa{% endblock %}
+
+{% block content %}
+<div class="navbar bg-base-100 shadow-lg">
+    <div class="flex-1">
+        <a href="/dashboard" class="btn btn-ghost text-xl">Secret Santa</a>
+    </div>
+    <div class="flex-none gap-2">
+        <a href="/dashboard" class="btn btn-ghost">Dashboard</a>
+        <div class="dropdown dropdown-end">
+            <div tabindex="0" role="button" class="btn btn-ghost btn-circle avatar">
+                <div class="w-10 rounded-full">
+                    {% if user.avatar %}
+                    <img src="{{ user.avatar }}" alt="{{ user.name }}" referrerpolicy="no-referrer" crossorigin="anonymous" />
+                    {% else %}
+                    <div class="avatar placeholder">
+                        <div class="bg-neutral text-neutral-content rounded-full w-10">
+                            <span class="text-xl">{{ user.name[0].upper() }}</span>
+                        </div>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+            <ul tabindex="0" class="menu menu-sm dropdown-content mt-3 z-[1] p-2 shadow bg-base-100 rounded-box w-52">
+                <li><a>{{ user.name }}</a></li>
+                <li><a>{{ user.email }}</a></li>
+                <li><a href="/logout">Logout</a></li>
+            </ul>
+        </div>
+    </div>
+</div>
+
+<div class="container mx-auto px-4 py-8 max-w-2xl">
+    <h1 class="text-4xl font-bold mb-8">Create Event</h1>
+
+    <div class="card bg-base-200 shadow-xl">
+        <div class="card-body">
+            <form method="post" action="/events/create">
+                <div class="form-control mb-4">
+                    <label class="label" for="title">
+                        <span class="label-text font-semibold">Title</span>
+                    </label>
+                    <input
+                        type="text"
+                        id="title"
+                        name="title"
+                        placeholder="e.g., Christmas 2024 Secret Santa"
+                        class="input input-bordered w-full"
+                        required
+                    />
+                </div>
+
+                <div class="form-control mb-4">
+                    <label class="label" for="description">
+                        <span class="label-text font-semibold">Description</span>
+                    </label>
+                    <textarea
+                        id="description"
+                        name="description"
+                        placeholder="Optional description..."
+                        class="textarea textarea-bordered h-24"
+                    ></textarea>
+                </div>
+
+                <div class="form-control mb-4">
+                    <label class="label" for="budget">
+                        <span class="label-text font-semibold">Budget Limit ($)</span>
+                    </label>
+                    <input
+                        type="number"
+                        id="budget"
+                        name="budget"
+                        step="0.01"
+                        min="0"
+                        placeholder="50.00"
+                        class="input input-bordered w-full"
+                        required
+                    />
+                </div>
+
+                <div class="form-control mb-4">
+                    <label class="label" for="target_count">
+                        <span class="label-text font-semibold">Target Participant Count</span>
+                    </label>
+                    <input
+                        type="number"
+                        id="target_count"
+                        name="target_count"
+                        min="2"
+                        placeholder="5"
+                        class="input input-bordered w-full"
+                        required
+                    />
+                    <label class="label">
+                        <span class="label-text-alt">Event will auto-match when this many people join</span>
+                    </label>
+                </div>
+
+                <div class="card-actions justify-end">
+                    <a href="/dashboard" class="btn btn-ghost">Cancel</a>
+                    <button type="submit" class="btn btn-primary">Create Event</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}
+

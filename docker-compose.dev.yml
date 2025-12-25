@@ -1,0 +1,26 @@
+version: '3.8'
+
+# Development docker-compose with hot-reload
+services:
+  web:
+    build:
+      context: .
+      dockerfile: Dockerfile.uv
+    container_name: secret_santa_web_dev
+    restart: unless-stopped
+    ports:
+      - "8000:8000"
+    volumes:
+      # Mount app directory for hot-reload during development
+      - ./app:/app/app
+      - santa_data:/app/data
+    env_file:
+      - .env
+    environment:
+      - DATABASE_URL=sqlite+aiosqlite:///./data/santa.db
+    command: ["uv", "run", "uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "8000", "--reload"]
+
+volumes:
+  santa_data:
+    driver: local
+

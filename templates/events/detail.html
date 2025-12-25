@@ -1,0 +1,220 @@
+{% extends "base.html" %}
+
+{% block title %}{{ event.title }} - Secret Santa{% endblock %}
+
+{% block content %}
+<div class="navbar bg-base-100 shadow-lg">
+    <div class="flex-1">
+        <a href="/dashboard" class="btn btn-ghost text-xl">Secret Santa</a>
+    </div>
+    <div class="flex-none gap-2">
+        <a href="/dashboard" class="btn btn-ghost">Dashboard</a>
+        <div class="dropdown dropdown-end">
+            <div tabindex="0" role="button" class="btn btn-ghost btn-circle avatar">
+                {% if user %}
+                <div class="w-10 rounded-full">
+                    {% if user.avatar %}
+                    <img src="{{ user.avatar }}" alt="{{ user.name }}" referrerpolicy="no-referrer" crossorigin="anonymous" />
+                    {% else %}
+                    <div class="avatar placeholder">
+                        <div class="bg-neutral text-neutral-content rounded-full w-10">
+                            <span class="text-xl">{{ user.name[0].upper() }}</span>
+                        </div>
+                    </div>
+                    {% endif %}
+                </div>
+                {% endif %}
+            </div>
+            {% if user %}
+            <ul tabindex="0" class="menu menu-sm dropdown-content mt-3 z-[1] p-2 shadow bg-base-100 rounded-box w-52">
+                <li><a>{{ user.name }}</a></li>
+                <li><a>{{ user.email }}</a></li>
+                <li><a href="/logout">Logout</a></li>
+            </ul>
+            {% endif %}
+        </div>
+    </div>
+</div>
+
+<div class="container mx-auto px-4 py-8 max-w-4xl">
+    {% if error %}
+    <div class="alert alert-error mb-6">
+        <svg xmlns="http://www.w3.org/2000/svg" class="stroke-current shrink-0 h-6 w-6" fill="none" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z" />
+        </svg>
+        <span>{{ error }}</span>
+    </div>
+    {% endif %}
+    <div class="flex justify-between items-start mb-8">
+        <div>
+            <h1 class="text-4xl font-bold">{{ event.title }}</h1>
+            <p class="text-base-content/70 mt-2">Created by {{ creator.name }}</p>
+        </div>
+        <div class="flex items-center gap-4">
+            <div class="badge badge-lg {% if event.status == 'MATCHED' %}badge-success{% else %}badge-warning{% endif %}">
+                {{ event.status }}
+            </div>
+            {% if is_creator %}
+            <form method="post" action="/events/{{ event.id }}/delete" class="inline">
+                <button type="submit" class="btn btn-error btn-sm" onclick="return confirm('Are you sure you want to delete this event?{% if event.status == 'MATCHED' %} This will delete all matching information.{% endif %} This action cannot be undone.')">Delete Event</button>
+            </form>
+            {% endif %}
+        </div>
+    </div>
+
+    <!-- Event Info -->
+    <div class="card bg-base-200 shadow-xl mb-6">
+        <div class="card-body">
+            <div class="grid md:grid-cols-3 gap-4">
+                <div>
+                    <div class="text-sm text-base-content/70 mb-2">Invite Code</div>
+                    <div class="flex items-center gap-2">
+                        <div class="text-2xl font-mono font-bold" id="event-code">{{ event.code }}</div>
+                        <button onclick="copyInviteCode()" class="btn btn-sm btn-ghost" title="Copy invite code" id="copy-code-btn">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z" />
+                            </svg>
+                        </button>
+                    </div>
+                    {% if join_link %}
+                    <div class="mt-3">
+                        <div class="text-sm text-base-content/70 mb-2">Join Link</div>
+                        <div class="flex items-center gap-2">
+                            <div class="text-xs text-base-content/60 break-all flex-1" id="join-link-text">{{ join_link }}</div>
+                            <button onclick="copyJoinLink()" class="btn btn-sm btn-ghost" title="Copy join link" id="copy-link-btn">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z" />
+                                </svg>
+                            </button>
+                        </div>
+                    </div>
+                    {% endif %}
+                </div>
+                <div>
+                    <div class="text-sm text-base-content/70">Budget</div>
+                    <div class="text-2xl font-bold">${{ "%.2f"|format(event.budget) }}</div>
+                </div>
+                <div>
+                    <div class="text-sm text-base-content/70">Participants</div>
+                    <div class="text-2xl font-bold">{{ participants|length }}/{{ event.target_count }}</div>
+                </div>
+            </div>
+            {% if event.description %}
+            <div class="mt-4">
+                <div class="text-sm text-base-content/70 mb-2">Description</div>
+                <p>{{ event.description }}</p>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+
+    <!-- Santa Target Card (shown after matching) -->
+    {% if user and current_participant and santa_target and event.status == 'MATCHED' %}
+    <div class="card bg-primary text-primary-content shadow-xl mb-6">
+        <div class="card-body">
+            <h2 class="card-title text-2xl">🎅 Your Santa Target</h2>
+            <p class="text-xl font-semibold">{{ santa_target.name }}</p>
+            {% if santa_target_wishlist %}
+            <div class="mt-4">
+                <div class="text-sm opacity-90 mb-2">Their Wishlist:</div>
+                <div class="bg-base-100 text-base-content p-4 rounded-lg whitespace-pre-wrap">{{ santa_target_wishlist }}</div>
+            </div>
+            {% else %}
+            <p class="text-sm opacity-90 mt-2">No wishlist provided.</p>
+            {% endif %}
+        </div>
+    </div>
+    {% endif %}
+
+    <!-- Participants List -->
+    <div class="card bg-base-200 shadow-xl">
+        <div class="card-body">
+            <h2 class="card-title mb-4">Participants</h2>
+            {% if participants %}
+            <div class="space-y-2">
+                {% for item in participants %}
+                <div class="flex items-center justify-between p-3 bg-base-100 rounded-lg">
+                    <div class="flex items-center gap-3">
+                        {% if item.user.avatar %}
+                        <img src="{{ item.user.avatar }}" alt="{{ item.user.name }}" class="w-10 h-10 rounded-full" referrerpolicy="no-referrer" crossorigin="anonymous" />
+                        {% else %}
+                        <div class="avatar placeholder">
+                            <div class="bg-neutral text-neutral-content rounded-full w-10">
+                                <span>{{ item.user.name[0].upper() }}</span>
+                            </div>
+                        </div>
+                        {% endif %}
+                        <div>
+                            <div class="font-semibold">{{ item.user.name }}</div>
+                            <div class="text-sm text-base-content/70">Joined {{ item.participant.joined_at.strftime('%B %d, %Y') }}</div>
+                        </div>
+                    </div>
+                    {% if user and user.id == item.user.id %}
+                    <span class="badge badge-primary">You</span>
+                    {% endif %}
+                </div>
+                {% endfor %}
+            </div>
+            {% else %}
+            <p class="text-base-content/70">No participants yet.</p>
+            {% endif %}
+
+            {% if user and event.status == 'OPEN' %}
+            <div class="mt-6 flex gap-2">
+                <a href="/events/{{ event.id }}/select-wishlist" class="btn btn-primary">{% if current_participant %}Update Wishlist{% else %}Join This Event{% endif %}</a>
+                {% if current_participant %}
+                <form method="post" action="/events/{{ event.id }}/unjoin" class="inline">
+                    <button type="submit" class="btn btn-error" onclick="return confirm('Are you sure you want to leave this event?')">Leave Event</button>
+                </form>
+                {% endif %}
+            </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+
+<script>
+function copyInviteCode() {
+    const inviteCode = "{{ event.code }}";
+    if (!inviteCode) {
+        return;
+    }
+    
+    navigator.clipboard.writeText(inviteCode).then(function() {
+        // Show success message on button
+        const btn = document.getElementById('copy-code-btn');
+        const originalHTML = btn.innerHTML;
+        btn.innerHTML = '<svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-success" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" /></svg>';
+        
+        setTimeout(function() {
+            btn.innerHTML = originalHTML;
+        }, 2000);
+    }).catch(function(err) {
+        console.error('Failed to copy: ', err);
+        alert('Failed to copy invite code. Please copy manually: ' + inviteCode);
+    });
+}
+
+function copyJoinLink() {
+    const joinLink = "{{ join_link }}";
+    if (!joinLink) {
+        return;
+    }
+    
+    navigator.clipboard.writeText(joinLink).then(function() {
+        // Show success message on button
+        const btn = document.getElementById('copy-link-btn');
+        const originalHTML = btn.innerHTML;
+        btn.innerHTML = '<svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-success" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" /></svg>';
+        
+        setTimeout(function() {
+            btn.innerHTML = originalHTML;
+        }, 2000);
+    }).catch(function(err) {
+        console.error('Failed to copy: ', err);
+        alert('Failed to copy link. Please copy manually: ' + joinLink);
+    });
+}
+</script>
+{% endblock %}
+

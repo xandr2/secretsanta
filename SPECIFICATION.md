@@ -72,3 +72,21 @@ A lightweight, mobile-friendly web application for organizing Secret Santa gift 
 - **Theme:** DaisyUI "Winter" theme (clean, white/blue/red).
 - **Responsiveness:** Mobile-first. Big buttons.
 - **Cards:** Events and Wishlists should be displayed as cards.
+
+## 6. Project structure
+secret-santa/
+├── .gitignore
+├── README.md
+├── SPECIFICATION.md      <-- The "Brain" for Cursor
+├── docker-compose.yml
+├── requirements.txt
+├── Dockerfile
+└── app/
+    ├── __init__.py
+    ├── main.py           <-- FastAPI entry point
+    ├── models.py         <-- SQLModel schemas
+    ├── database.py       <-- DB connection logic
+    ├── bot.py            <-- Telegram bot logic
+    ├── core/             <-- Config & Auth
+    ├── templates/        <-- Jinja2 HTML templates
+    └── static/           <-- CSS/Images

@@ -1,0 +1,106 @@
+{% extends "base.html" %}
+
+{% block title %}Select Wishlist - Secret Santa{% endblock %}
+
+{% block content %}
+<div class="navbar bg-base-100 shadow-lg">
+    <div class="flex-1">
+        <a href="/dashboard" class="btn btn-ghost text-xl">Secret Santa</a>
+    </div>
+    <div class="flex-none gap-2">
+        <a href="/dashboard" class="btn btn-ghost">Dashboard</a>
+        <div class="dropdown dropdown-end">
+            <div tabindex="0" role="button" class="btn btn-ghost btn-circle avatar">
+                <div class="w-10 rounded-full">
+                    {% if user.avatar %}
+                    <img src="{{ user.avatar }}" alt="{{ user.name }}" referrerpolicy="no-referrer" crossorigin="anonymous" />
+                    {% else %}
+                    <div class="avatar placeholder">
+                        <div class="bg-neutral text-neutral-content rounded-full w-10">
+                            <span class="text-xl">{{ user.name[0].upper() }}</span>
+                        </div>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+            <ul tabindex="0" class="menu menu-sm dropdown-content mt-3 z-[1] p-2 shadow bg-base-100 rounded-box w-52">
+                <li><a>{{ user.name }}</a></li>
+                <li><a>{{ user.email }}</a></li>
+                <li><a href="/logout">Logout</a></li>
+            </ul>
+        </div>
+    </div>
+</div>
+
+<div class="container mx-auto px-4 py-8 max-w-2xl">
+    <h1 class="text-4xl font-bold mb-4">{% if current_participant %}Update Wishlist{% else %}Join{% endif %}: {{ event.title }}</h1>
+    <p class="text-base-content/70 mb-8">Select a wishlist or write a new one for this event.</p>
+    {% if current_participant %}
+    <div class="alert alert-info mb-4">
+        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" class="stroke-current shrink-0 w-6 h-6"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+        <span>You're already participating. Updating your wishlist will replace your current one.</span>
+    </div>
+    {% endif %}
+
+    <div class="card bg-base-200 shadow-xl">
+        <div class="card-body">
+            {% if error %}
+            <div class="alert alert-error mb-4">
+                <svg xmlns="http://www.w3.org/2000/svg" class="stroke-current shrink-0 h-6 w-6" fill="none" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                </svg>
+                <span>{{ error }}</span>
+            </div>
+            {% endif %}
+            <form method="post" action="/events/{{ event.id }}/join-confirm"{% if error %} onsubmit="return false;"{% endif %}>
+                <div class="form-control mb-6">
+                    <label class="label">
+                        <span class="label-text font-semibold">Choose a Wishlist</span>
+                    </label>
+                    {% if wishlists %}
+                    <div class="space-y-2">
+                        {% for wishlist in wishlists %}
+                        <label class="label cursor-pointer border rounded-lg p-4 hover:bg-base-300">
+                            <span class="label-text">
+                                <div class="font-semibold">{{ wishlist.title }}</div>
+                                <div class="text-sm text-base-content/70">{{ wishlist.content[:100] }}{% if wishlist.content|length > 100 %}...{% endif %}</div>
+                            </span>
+                            <input type="radio" name="wishlist_id" value="{{ wishlist.id }}" class="radio radio-primary" {% if error %}disabled{% endif %} />
+                        </label>
+                        {% endfor %}
+                    </div>
+                    {% else %}
+                    <p class="text-base-content/70 mb-4">No wishlists yet. Write a custom one below.</p>
+                    {% endif %}
+                </div>
+
+                <div class="divider">OR</div>
+
+                <div class="form-control mb-4">
+                    <label class="label" for="custom_wishlist">
+                        <span class="label-text font-semibold">Write a Custom Wishlist</span>
+                    </label>
+                    <textarea
+                        id="custom_wishlist"
+                        name="custom_wishlist"
+                        placeholder="Enter your wishlist items for this event..."
+                        class="textarea textarea-bordered h-32"
+                        {% if error %}disabled{% endif %}
+                    >{% if current_participant and current_participant.wishlist_text %}{{ current_participant.wishlist_text }}{% endif %}</textarea>
+                    <label class="label">
+                        <span class="label-text-alt">This will be saved as a snapshot for this event only</span>
+                    </label>
+                </div>
+
+                <div class="card-actions justify-end">
+                    <a href="/events/{{ event.id }}" class="btn btn-ghost">{% if error %}Back to Event{% else %}Cancel{% endif %}</a>
+                    {% if not error %}
+                    <button type="submit" class="btn btn-primary">{% if current_participant %}Update Wishlist{% else %}Join Event{% endif %}</button>
+                    {% endif %}
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}
+

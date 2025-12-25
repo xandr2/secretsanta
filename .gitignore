@@ -7,18 +7,44 @@ __pycache__/
 env/
 venv/
 .venv/
+*.egg-info/
+dist/
+build/
+
+# uv
+.uv/
+uv.lock
 
 # Environment variables (CRITICAL)
 .env
+.env.local
+.env.*.local
 
 # Database
 *.db
 *.sqlite3
 data/
 
+# Testing
+.pytest_cache/
+.coverage
+htmlcov/
+.tox/
+
 # Docker
 .docker_ids
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
 
 # OS
 .DS_Store
 Thumbs.db
+
+# Logs
+*.log
+logs/

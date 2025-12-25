@@ -1,0 +1,2 @@
+"""Secret Santa application package."""
+

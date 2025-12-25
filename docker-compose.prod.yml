@@ -1,0 +1,30 @@
+version: '3.8'
+
+# Production docker-compose using Docker Hub image
+services:
+  web:
+    image: xandr2/secret-santa:latest
+    container_name: secret_santa_web
+    restart: unless-stopped
+    ports:
+      - "8000:8000"
+    volumes:
+      # Mount data directory for persistence
+      - santa_data:/app/data
+    env_file:
+      - .env
+    environment:
+      - DATABASE_URL=sqlite+aiosqlite:///./data/santa.db
+      # LOG_LEVEL can be set via .env file (default: info)
+      # Set LOG_LEVEL=error to disable access logs in production
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:8000/login')"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 10s
+
+volumes:
+  santa_data:
+    driver: local
+

@@ -1,0 +1,78 @@
+{% extends "base.html" %}
+
+{% block title %}Join Event - Secret Santa{% endblock %}
+
+{% block content %}
+<div class="navbar bg-base-100 shadow-lg">
+    <div class="flex-1">
+        <a href="/dashboard" class="btn btn-ghost text-xl">Secret Santa</a>
+    </div>
+    <div class="flex-none gap-2">
+        <a href="/dashboard" class="btn btn-ghost">Dashboard</a>
+        <div class="dropdown dropdown-end">
+            <div tabindex="0" role="button" class="btn btn-ghost btn-circle avatar">
+                <div class="w-10 rounded-full">
+                    {% if user.avatar %}
+                    <img src="{{ user.avatar }}" alt="{{ user.name }}" referrerpolicy="no-referrer" crossorigin="anonymous" />
+                    {% else %}
+                    <div class="avatar placeholder">
+                        <div class="bg-neutral text-neutral-content rounded-full w-10">
+                            <span class="text-xl">{{ user.name[0].upper() }}</span>
+                        </div>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+            <ul tabindex="0" class="menu menu-sm dropdown-content mt-3 z-[1] p-2 shadow bg-base-100 rounded-box w-52">
+                <li><a>{{ user.name }}</a></li>
+                <li><a>{{ user.email }}</a></li>
+                <li><a href="/logout">Logout</a></li>
+            </ul>
+        </div>
+    </div>
+</div>
+
+<div class="container mx-auto px-4 py-8 max-w-2xl">
+    <h1 class="text-4xl font-bold mb-8">Join Event</h1>
+
+    <div class="card bg-base-200 shadow-xl">
+        <div class="card-body">
+            {% if error %}
+            <div class="alert alert-error mb-4">
+                <svg xmlns="http://www.w3.org/2000/svg" class="stroke-current shrink-0 h-6 w-6" fill="none" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                </svg>
+                <span>{{ error }}</span>
+            </div>
+            {% endif %}
+
+            <form method="post" action="/events/join">
+                <div class="form-control mb-4">
+                    <label class="label" for="code">
+                        <span class="label-text font-semibold">Event Code</span>
+                    </label>
+                    <input
+                        type="text"
+                        id="code"
+                        name="code"
+                        placeholder="e.g., X7K-9P"
+                        class="input input-bordered w-full uppercase"
+                        style="text-transform: uppercase;"
+                        value="{% if code %}{{ code }}{% endif %}"
+                        required
+                    />
+                    <label class="label">
+                        <span class="label-text-alt">Enter the 6-character invite code</span>
+                    </label>
+                </div>
+
+                <div class="card-actions justify-end">
+                    <a href="/dashboard" class="btn btn-ghost">Cancel</a>
+                    <button type="submit" class="btn btn-primary">Join Event</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}
+

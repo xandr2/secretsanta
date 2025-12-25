@@ -1,0 +1,147 @@
+{% extends "base.html" %}
+
+{% block title %}Dashboard - Secret Santa{% endblock %}
+
+{% block content %}
+<div class="navbar bg-base-100 shadow-lg">
+    <div class="flex-1">
+        <a href="/dashboard" class="btn btn-ghost text-xl">Secret Santa</a>
+        {% if version %}
+        <span class="text-xs text-base-content/60 ml-2">v{{ version }}</span>
+        {% endif %}
+    </div>
+    <div class="flex-none gap-2">
+        <div class="dropdown dropdown-end">
+            <div tabindex="0" role="button" class="btn btn-ghost btn-circle avatar">
+                <div class="w-10 rounded-full">
+                    {% if user.avatar %}
+                    <img src="{{ user.avatar }}" alt="{{ user.name }}" referrerpolicy="no-referrer" crossorigin="anonymous" />
+                    {% else %}
+                    <div class="avatar placeholder">
+                        <div class="bg-neutral text-neutral-content rounded-full w-10">
+                            <span class="text-xl">{{ user.name[0].upper() }}</span>
+                        </div>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+            <ul tabindex="0" class="menu menu-sm dropdown-content mt-3 z-[1] p-2 shadow bg-base-100 rounded-box w-52">
+                <li><a>{{ user.name }}</a></li>
+                <li><a>{{ user.email }}</a></li>
+                <li><a href="/logout">Logout</a></li>
+            </ul>
+        </div>
+    </div>
+</div>
+
+<div class="container mx-auto px-4 py-8">
+    <h1 class="text-4xl font-bold mb-8">Welcome, {{ user.name }}!</h1>
+    
+    <!-- Profile Section -->
+    <div class="card bg-base-200 shadow-xl mb-6">
+        <div class="card-body">
+            <h2 class="card-title">Profile</h2>
+            <div class="space-y-2">
+                <p><strong>Name:</strong> {{ user.name }}</p>
+                <p><strong>Email:</strong> {{ user.email }}</p>
+                {% if user.telegram_chat_id %}
+                <p class="text-success">✓ Telegram Connected</p>
+                {% else %}
+                <div class="flex items-center gap-2">
+                    <p>Telegram: Not connected</p>
+                    <a href="/profile/connect-telegram" class="btn btn-sm btn-primary">Connect Telegram</a>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+
+    <!-- My Wishlists Section -->
+    <div class="card bg-base-200 shadow-xl mb-6">
+        <div class="card-body">
+            <div class="flex justify-between items-center mb-4">
+                <h2 class="card-title">My Wishlists</h2>
+                <a href="/wishlists/create" class="btn btn-primary">Create Wishlist</a>
+            </div>
+            {% if wishlists %}
+            <div class="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+                {% for wishlist in wishlists %}
+                <div class="card bg-base-100 shadow">
+                    <div class="card-body">
+                        <h3 class="card-title text-lg">{{ wishlist.title }}</h3>
+                        <p class="text-sm text-base-content/70 line-clamp-2">{{ wishlist.content[:100] }}{% if wishlist.content|length > 100 %}...{% endif %}</p>
+                        <div class="card-actions justify-end mt-2">
+                            <a href="/wishlists/{{ wishlist.id }}/edit" class="btn btn-sm btn-ghost">Edit</a>
+                            <a href="/wishlists/share/{{ wishlist.share_uuid }}" class="btn btn-sm btn-primary" target="_blank">Share</a>
+                        </div>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+            <div class="mt-4">
+                <a href="/wishlists" class="btn btn-outline">View All Wishlists</a>
+            </div>
+            {% else %}
+            <p class="text-base-content/70">No wishlists yet. Create your first one!</p>
+            {% endif %}
+        </div>
+    </div>
+
+    <!-- My Events Section -->
+    <div class="card bg-base-200 shadow-xl mb-6">
+        <div class="card-body">
+            <div class="flex justify-between items-center mb-4">
+                <h2 class="card-title">My Events</h2>
+                <a href="/events/create" class="btn btn-primary">Create Event</a>
+            </div>
+            {% if events_created %}
+            <div class="grid gap-4 md:grid-cols-2">
+                {% for event in events_created %}
+                <div class="card bg-base-100 shadow">
+                    <div class="card-body">
+                        <h3 class="card-title">{{ event.title }}</h3>
+                        <p class="text-sm">Code: <span class="font-mono font-bold">{{ event.code }}</span></p>
+                        <p class="text-sm">Budget: ${{ "%.2f"|format(event.budget) }}</p>
+                        <p class="text-sm">Status: <span class="badge {% if event.status == 'MATCHED' %}badge-success{% else %}badge-warning{% endif %}">{{ event.status }}</span></p>
+                        <div class="card-actions justify-end mt-2">
+                            <a href="/events/{{ event.id }}" class="btn btn-sm btn-primary">View</a>
+                        </div>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+            {% else %}
+            <p class="text-base-content/70">No events created yet.</p>
+            {% endif %}
+        </div>
+    </div>
+
+    <!-- Joined Events Section -->
+    <div class="card bg-base-200 shadow-xl">
+        <div class="card-body">
+            <div class="flex justify-between items-center mb-4">
+                <h2 class="card-title">Joined Events</h2>
+                <a href="/events/join" class="btn btn-primary">Join an Event</a>
+            </div>
+            {% if events_joined %}
+            <div class="grid gap-4 md:grid-cols-2">
+                {% for event in events_joined %}
+                <div class="card bg-base-100 shadow">
+                    <div class="card-body">
+                        <h3 class="card-title">{{ event.title }}</h3>
+                        <p class="text-sm">Budget: ${{ "%.2f"|format(event.budget) }}</p>
+                        <p class="text-sm">Status: <span class="badge {% if event.status == 'MATCHED' %}badge-success{% else %}badge-warning{% endif %}">{{ event.status }}</span></p>
+                        <div class="card-actions justify-end mt-2">
+                            <a href="/events/{{ event.id }}" class="btn btn-sm btn-primary">View</a>
+                        </div>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+            {% else %}
+            <p class="text-base-content/70">You haven't joined any events yet.</p>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %}

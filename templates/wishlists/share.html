@@ -1,0 +1,45 @@
+{% extends "base.html" %}
+
+{% block title %}{{ wishlist.title }} - Shared Wishlist{% endblock %}
+
+{% block content %}
+<div class="min-h-screen bg-base-200">
+    <div class="container mx-auto px-4 py-8 max-w-3xl">
+        <div class="card bg-base-100 shadow-2xl">
+            <div class="card-body">
+                <div class="flex items-center justify-between mb-4">
+                    <h1 class="text-3xl font-bold">{{ wishlist.title }}</h1>
+                    <div class="badge badge-primary">Shared Wishlist</div>
+                </div>
+                
+                <div class="text-sm text-base-content/70 mb-6">
+                    <p>Shared by: <strong>{{ owner.name }}</strong></p>
+                </div>
+
+                <div class="prose max-w-none">
+                    {% if wishlist.content %}
+                    <div class="bg-base-200 p-4 rounded-lg">
+                        {% if formatted_content['is_list'] %}
+                        <ol class="list-decimal list-inside space-y-2 ml-4">
+                            {% for item in formatted_content['items'] %}
+                            <li class="text-base-content">{{ item }}</li>
+                            {% endfor %}
+                        </ol>
+                        {% else %}
+                        <div class="whitespace-pre-wrap text-base-content">{{ wishlist.content }}</div>
+                        {% endif %}
+                    </div>
+                    {% else %}
+                    <p class="text-base-content/70 italic">No content available.</p>
+                    {% endif %}
+                </div>
+
+                <div class="card-actions justify-end mt-6">
+                    <a href="/login" class="btn btn-primary">Sign in to create your own wishlist</a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
